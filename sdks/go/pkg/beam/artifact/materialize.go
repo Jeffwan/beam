@@ -24,6 +24,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"log"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -119,6 +120,8 @@ func (a artifact) retrieve(ctx context.Context, dest string) error {
 
 	filename := filepath.Join(dest, filepath.FromSlash(path))
 
+	log.Printf("retrieve path %v, filename %v, a.dep %v", path, filename, a.dep)
+
 	_, err = os.Stat(filename)
 	if err == nil {
 		if err = os.Remove(filename); err != nil {
@@ -131,6 +134,8 @@ func (a artifact) retrieve(ctx context.Context, dest string) error {
 	if err := os.MkdirAll(filepath.Dir(filename), os.ModePerm); err != nil {
 		return err
 	}
+
+	log.Printf("mkdir %v", filepath.Dir(filename))
 
 	stream, err := a.client.GetArtifact(ctx, &jobpb.GetArtifactRequest{Artifact: a.dep})
 	if err != nil {
@@ -152,6 +157,8 @@ func (a artifact) retrieve(ctx context.Context, dest string) error {
 		fd.Close()
 		return errors.Wrapf(err, "failed to flush chunks for %v", filename)
 	}
+
+	log.Printf("successfully get artifact file")
 	return fd.Close()
 }
 

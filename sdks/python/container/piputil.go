@@ -89,16 +89,20 @@ func pipInstallPackage(files []string, dir, name string, force, optional bool, e
 				// installed if necessary.  This achieves our goal outlined above.
 				args := []string{"install", "--upgrade", "--force-reinstall", "--no-deps",
 					filepath.Join(dir, packageSpec)}
+
+				log.Printf("install --upgrade --force-reinstall --no-deps %v", filepath.Join(dir, packageSpec))
 				err := execx.Execute(pip, args...)
 				if err != nil {
 					return err
 				}
 				args = []string{"install", filepath.Join(dir, packageSpec)}
+				log.Printf("install %v", filepath.Join(dir, packageSpec))
 				return execx.Execute(pip, args...)
 			}
 
 			// Case when we do not perform a forced reinstall.
 			args := []string{"install", filepath.Join(dir, packageSpec)}
+			log.Printf("install - not force %v", filepath.Join(dir, packageSpec))
 			return execx.Execute(pip, args...)
 		}
 	}
@@ -113,6 +117,7 @@ func pipInstallPackage(files []string, dir, name string, force, optional bool, e
 func installExtraPackages(files []string, extraPackagesFile, dir string) error {
 	// First check that extra packages manifest file is present.
 	for _, file := range files {
+		log.Printf("file: %v, extraPackagesFile", file, extraPackagesFile)
 		if file != extraPackagesFile {
 			continue
 		}

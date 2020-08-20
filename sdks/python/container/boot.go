@@ -130,11 +130,17 @@ func main() {
 	materializeArtifactsFunc := func() {
 		dir := filepath.Join(*semiPersistDir, "staged")
 
+		// TODO: I assume this step fetch all the dependencies for us.
+		log.Printf("artifactEndpoint: %v", *artifactEndpoint)
+		log.Printf("dependencies: %v, %v", len(info.GetDependencies()), info.GetDependencies())
+		log.Printf("retrievalToken: %v", info.GetRetrievalToken())
+
 		files, err := artifact.Materialize(ctx, *artifactEndpoint, info.GetDependencies(), info.GetRetrievalToken(), dir)
 		if err != nil {
 			log.Fatalf("Failed to retrieve staged files: %v", err)
 		}
 
+		log.Printf("files after materialize: %v", files)
 		// TODO(herohde): the packages to install should be specified explicitly. It
 		// would also be possible to install the SDK in the Dockerfile.
 		if setupErr := installSetupPackages(files, dir); setupErr != nil {
