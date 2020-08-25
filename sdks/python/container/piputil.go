@@ -87,7 +87,24 @@ func pipInstallPackage(files []string, dir, name string, force, optional bool, e
 				// installed version will match the package specified, the package itself
 				// will not be reinstalled, but its dependencies will now be resolved and
 				// installed if necessary.  This achieves our goal outlined above.
-				args := []string{"install", "--upgrade", "--force-reinstall", "--no-deps",
+
+				// convert tar file to tar.gz
+				srcFile := filepath.Join(dir, packageSpec)
+				tarFile := srcFile[:len(srcFile) - 3]
+				args := []string{srcFile, tarFile}
+				err := execx.Execute("mv", args...)
+				if err != nil {
+					return err
+				}
+
+				// gzip file. result will be same as srcFile
+				args = []string{tarFile}
+				err = execx.Execute("gzip", args...)
+				if err != nil {
+					return err
+				}
+
+				args = []string{"install", "--upgrade", "--force-reinstall", "--no-deps",
 					filepath.Join(dir, packageSpec)}
 
 				log.Printf("install --upgrade --force-reinstall --no-deps %v", filepath.Join(dir, packageSpec))
